@@ -18,9 +18,7 @@ class MyApplication : Application() {
             if (it.isSuccessful) {
                 Log.d(LOGGER_TAG, "Successfully installed Play Services provider: $it")
                 // TODO(you): Initialize Cronet engine
-                val cronetEngine = CronetEngine.Builder(applicationContext)
-                    .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 10 * 1024 * 1024)
-                    .build()
+
                 // TODO(you): Initialize the Cronet image downloader
             } else {
                 Log.d(LOGGER_TAG, "Unable to load Cronet from Play Services", it.exception)

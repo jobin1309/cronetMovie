@@ -7,7 +7,9 @@ import org.chromium.net.CronetException
 import org.chromium.net.UrlRequest
 import org.chromium.net.UrlResponseInfo
 import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 import java.util.concurrent.Executors
+
 
 class CronetApi(private val cronetEngine: CronetEngine) {
 
@@ -16,14 +18,30 @@ class CronetApi(private val cronetEngine: CronetEngine) {
         fun onFailure(error: Throwable)
     }
 
-    fun makeApiRequest(url: String, callback: ApiResponseCallback) {
+    fun makeApiRequest(apiKey: String, page: Int, callback: ApiResponseCallback) {
+        val baseUrl = BASE_URL
+        val url = "$baseUrl/movie/popular?api_key=$apiKey&page=$page"
+
         val request = cronetEngine.newUrlRequestBuilder(url, object : ReadToMemoryCronetCallback() {
+            private val responseData = ByteArrayOutputStream()
+
+            override fun onReadCompleted(
+                request: UrlRequest,
+                info: UrlResponseInfo,
+                byteBuffer: ByteBuffer
+            ) {
+                val byteArray = ByteArray(byteBuffer.remaining())
+                byteBuffer.get(byteArray)
+                responseData.write(byteArray)
+            }
+
+
             override fun onSucceeded(
                 request: UrlRequest,
                 info: UrlResponseInfo,
                 bodyBytes: ByteArray
             ) {
-                callback.onSuccess(bodyBytes)
+                callback.onSuccess(responseData.toByteArray())
             }
 
             override fun onFailed(
@@ -31,16 +49,13 @@ class CronetApi(private val cronetEngine: CronetEngine) {
                 info: UrlResponseInfo?,
                 error: CronetException?
             ) {
+                callback.onFailure(error ?: Exception("Unknown error"))
             }
         }, Executors.newSingleThreadExecutor())
 
         request.build().start()
     }
-
-
 }
-
-
 
 
 
