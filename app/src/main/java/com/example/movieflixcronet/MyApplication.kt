@@ -4,8 +4,11 @@ import android.app.Application
 import android.util.Log
 import com.google.android.gms.net.CronetProviderInstaller
 import com.quintetsolutions.qalert.utils.Constants.LOGGER_TAG
+import dagger.hilt.android.HiltAndroidApp
 import org.chromium.net.CronetEngine
 
+
+@HiltAndroidApp
 class MyApplication : Application() {
 
     override fun onCreate() {

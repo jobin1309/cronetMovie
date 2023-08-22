@@ -23,30 +23,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.movieflixcronet.data.Movie
 import com.example.movieflixcronet.ui.theme.MovieFlixCronetTheme
+import com.example.movieflixcronet.viewModel.MovieViewModel
 import com.quintetsolutions.qalert.utils.Constants
-import com.quintetsolutions.qalert.utils.Constants.API_KEY
-import com.quintetsolutions.qalert.utils.Constants.BASE_URL
-import org.chromium.net.CronetEngine
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val cronetEngine = CronetEngine.Builder(applicationContext)
-        .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 10 * 1024 * 1024).build()
-
-
-    private val viewModel by viewModels<MyViewModel> { MyViewModelFactory(cronetEngine) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val viewModel by viewModels<MovieViewModel>()
+
+
         super.onCreate(savedInstanceState)
         setContent {
             MovieFlixCronetTheme {
@@ -54,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    MoviePage(viewModel = viewModel)
+                    MoviePage(viewModel)
                 }
             }
         }
@@ -101,13 +97,12 @@ fun MovieCard(movie: Movie) {
 }
 
 @Composable
-fun MoviePage(viewModel: MyViewModel) {
+fun MoviePage(viewModel: MovieViewModel) {
     // Observe the LiveData using observeAsState
     val moviesState by viewModel.moviesLiveData.observeAsState()
 
     // Call fetchMovies when the screen is created
     LaunchedEffect(Unit) {
-        viewModel.fetchMovies(BASE_URL, API_KEY, 1)
     }
 
     // Render the UI based on the movies data

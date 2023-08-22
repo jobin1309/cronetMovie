@@ -71,7 +71,7 @@ import java.nio.channels.Channels
 
     companion object {
         private const val TAG = "ReadToMemoryCronetCallback"
-        private const val BYTE_BUFFER_CAPACITY_BYTES = 64 * 1024
+        const val BYTE_BUFFER_CAPACITY_BYTES = 64 * 1024
     }
 }
 
