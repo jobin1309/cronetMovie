@@ -101,9 +101,6 @@ fun MoviePage(viewModel: MovieViewModel) {
     // Observe the LiveData using observeAsState
     val moviesState by viewModel.moviesLiveData.observeAsState()
 
-    // Call fetchMovies when the screen is created
-    LaunchedEffect(Unit) {
-    }
 
     // Render the UI based on the movies data
     LazyColumn {

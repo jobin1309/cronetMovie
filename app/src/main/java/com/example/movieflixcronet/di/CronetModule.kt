@@ -7,6 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.chromium.net.CronetEngine
+import java.util.concurrent.Executor
+import java.util.concurrent.ThreadPoolExecutor
 import javax.inject.Singleton
 
 
@@ -22,4 +24,14 @@ object CronetModule {
             .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 10 * 1024 * 1024).build()
 
     }
+
+    @Singleton
+    @Provides
+    fun provideExecutor(): Executor = ThreadPoolExecutor(
+        2,
+        4,
+        60,
+        java.util.concurrent.TimeUnit.SECONDS,
+        java.util.concurrent.LinkedBlockingQueue()
+    )
 }

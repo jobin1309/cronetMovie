@@ -24,8 +24,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.Channels
 
  abstract class ReadToMemoryCronetCallback : UrlRequest.Callback() {
-    private val bytesReceived = ByteArrayOutputStream()
-    private val receiveChannel = Channels.newChannel(bytesReceived)
+     var responseBody: String? = null
 
      override fun onRedirectReceived(
         request: UrlRequest, info: UrlResponseInfo?, newLocationUrl: String?
@@ -44,33 +43,26 @@ import java.nio.channels.Channels
      override fun onReadCompleted(
         request: UrlRequest, info: UrlResponseInfo, byteBuffer: ByteBuffer
     ) {
-        // The byte buffer we're getting in the callback hasn't been flipped for reading,
-        // so flip it so we can read the content.
-        byteBuffer.flip()
-        receiveChannel.write(byteBuffer)
 
-        // Reset the buffer to prepare it for the next read
-        byteBuffer.clear()
+         byteBuffer?.let {
+             val byteArray = ByteArray(it.remaining())
+             it.get(byteArray)
+             String(byteArray, Charsets.UTF_8)
+         }?.apply {
+             responseBody += this
+         }
+         byteBuffer?.clear()
+         request?.read(byteBuffer)
+         Log.d("ResponseComplete", responseBody.toString())
 
-        // Continue reading the request
-        request.read(byteBuffer)
-    }
 
-     override fun onSucceeded(request: UrlRequest, info: UrlResponseInfo) {
-        val bodyBytes = bytesReceived.toByteArray()
+     }
 
-        // We invoke the callback directly here for simplicity. Note that the executor running this
-        // callback might be shared with other Cronet requests, or even with other parts of your
-        // application. Always make sure to appropriately provision your pools, and consider
-        // delegating time consuming work on another executor.
-        onSucceeded(request, info, bodyBytes)
-    }
 
-    abstract fun onSucceeded(
-        request: UrlRequest, info: UrlResponseInfo, bodyBytes: ByteArray)
 
-    companion object {
-        private const val TAG = "ReadToMemoryCronetCallback"
+
+     companion object {
+        const val TAG = "ReadToMemoryCronetCallback"
         const val BYTE_BUFFER_CAPACITY_BYTES = 64 * 1024
     }
 }
